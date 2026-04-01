@@ -1,0 +1,65 @@
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+const PUBLIC_ROUTES = ['/login', '/register', '/verify-email']
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth_token')?.value
+  const { pathname } = request.nextUrl
+
+  let isTokenExpired = false
+  if (token) {
+    try {
+      const payloadBase64 = token.split('.')[1]
+      if (payloadBase64) {
+        const payload = JSON.parse(atob(payloadBase64))
+        if (payload.exp && payload.exp * 1000 < Date.now()) {
+          isTokenExpired = true
+        }
+      }
+    } catch (e) {
+      isTokenExpired = true
+    }
+  }
+
+  if (token && isTokenExpired) {
+    const response = NextResponse.redirect(new URL('/login', request.url))
+    response.cookies.delete('auth_token')
+    return response
+  }
+
+  if (pathname === '/') {
+    if (token && !isTokenExpired) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+
+  if (!PUBLIC_ROUTES.includes(pathname) && (!token || isTokenExpired)) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  if (PUBLIC_ROUTES.includes(pathname) && token && !isTokenExpired) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: [
+    '/',
+    '/dashboard/:path*',
+    '/staff/:path*',
+    '/users/:path*',
+    '/patients/:path*',
+    '/appointments/:path*',
+    '/stats/:path*',
+    '/settings/:path*',
+    '/help/:path*',
+    '/login',
+    '/register',
+    '/verify-email',
+  ],
+}
