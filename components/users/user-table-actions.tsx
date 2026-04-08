@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { MoreHorizontal, UserRoundPenIcon, Trash2, Eye } from "lucide-react";
-import { Staff } from "@/types/staff";
-import {
-  deleteStaffAction,
-  updateStaffAction,
-} from "@/lib/actions/staff.actions";
+import { User } from "@/types/user";
+import { deleteUserAction } from "@/lib/actions/user.actions";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -34,55 +33,28 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { UserForm } from "./user-form";
 
-interface StaffRowActionsProps {
-  staff: Staff;
+interface UserRowActionsProps {
+  user: User;
 }
 
-export function StaffTableActions({ staff }: StaffRowActionsProps) {
+export function UserTableActions({ user }: UserRowActionsProps) {
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   async function handleDelete() {
     setIsLoading(true);
-    setError(null);
     try {
-      await deleteStaffAction(staff.id);
+      await deleteUserAction(user.id);
+      toast.success("Usuario eliminado correctamente");
       setDeleteOpen(false);
     } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleEdit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-
-    const formData = new FormData(e.currentTarget);
-    const phone = formData.get("phone") as string;
-    const address = formData.get("address") as string;
-    const specialty = formData.get("specialty") as string;
-
-    const dataToUpdate = {
-      phone,
-      address,
-      specialty,
-    };
-
-    try {
-      await updateStaffAction(staff.id, dataToUpdate);
-      setEditOpen(false);
-    } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message || "Error al eliminar el usuario");
     } finally {
       setIsLoading(false);
     }
@@ -129,38 +101,34 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="sm:max-w-md p-8">
           <DialogHeader>
-            <DialogTitle>Detalles del Personal</DialogTitle>
+            <DialogTitle>Detalles del Usuario</DialogTitle>
             <DialogDescription>
-              Información de {staff.user.firstName} {staff.user.lastName}
+              Información de {user.firstName} {user.lastName}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Nombre</Label>
+              <Label className="text-right">Email</Label>
+              <div className="col-span-3 text-sm pl-4">{user.email}</div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Roles</Label>
               <div className="col-span-3 text-sm pl-4">
-                {staff.user.firstName} {staff.user.lastName}
+                {user.roles.map((role) => (
+                  <span key={role}>{role}</span>
+                ))}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Documento</Label>
-              <div className="col-span-3 text-sm pl-4">{staff.document}</div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Especialidad</Label>
+              <Label className="text-right">Estado</Label>
               <div className="col-span-3 text-sm pl-4">
-                {staff.specialty || "General"}
+                {user.isActive ? "Activo" : "Inactivo"}
               </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Teléfono</Label>
+              <Label className="text-right">Creado</Label>
               <div className="col-span-3 text-sm pl-4">
-                {staff.phone || "No registrado"}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Dirección</Label>
-              <div className="col-span-3 text-sm pl-4">
-                {staff.address || "No registrado"}
+                {new Date(user.createdAt).toLocaleDateString()}
               </div>
             </div>
           </div>
@@ -173,93 +141,38 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
       </Dialog>
 
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
-        <DialogContent className="sm:max-w-md p-8">
+        <DialogContent className="sm:max-w-[600px] p-8">
           <DialogHeader>
-            <DialogTitle>Editar Perfil</DialogTitle>
+            <DialogTitle>Editar Usuario</DialogTitle>
             <DialogDescription>
-              Actualice los datos del miembro del personal. Haga clic en guardar
-              cuando termine.
+              Actualice los datos generales del usuario. El email se mantiene
+              por seguridad.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handleEdit}>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="specialty" className="text-right">
-                  Especialidad
-                </Label>
-                <Input
-                  id="specialty"
-                  name="specialty"
-                  defaultValue={staff.specialty || ""}
-                  className="col-span-3 ml-2"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Teléfono
-                </Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  defaultValue={staff.phone || ""}
-                  className="col-span-3 ml-2"
-                />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">
-                  Dirección
-                </Label>
-                <Input
-                  id="address"
-                  name="address"
-                  defaultValue={staff.address || ""}
-                  className="col-span-3 ml-2"
-                />
-              </div>
-              {error && (
-                <p className="text-sm text-red-500 text-center col-span-4">
-                  {error}
-                </p>
-              )}
-            </div>
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setEditOpen(false)}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : "Guardar cambios"}
-              </Button>
-            </DialogFooter>
-          </form>
+          <div className="py-4">
+            <UserForm initialData={user} onSuccess={() => setEditOpen(false)} />
+          </div>
         </DialogContent>
       </Dialog>
 
-      {/* DELETE ALERT */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. Esto eliminará permanentemente
-              al personal "{staff.user.firstName}".
-              {error && (
-                <p className="text-red-500 mt-2 font-medium">{error}</p>
-              )}
+              al usuario "{user.firstName} {user.lastName}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isLoading}>Cancelar</AlertDialogCancel>
-            <Button
-              variant="destructive"
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}
               disabled={isLoading}
             >
               {isLoading ? "Eliminando..." : "Eliminar de todos modos"}
-            </Button>
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

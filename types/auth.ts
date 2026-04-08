@@ -1,17 +1,7 @@
-export enum Role {
-  ADMIN = "ADMINISTRADOR",
-  DOCTOR = "MEDICO",
-  RECEPTIONIST = "RECEPCIONISTA",
-}
+import { Role, User } from "./user";
 
-export interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  roles: Role[];
-  isActive: boolean;
-}
+export { Role, type User };
+
 
 export interface LoginCredentials {
   email: string;
