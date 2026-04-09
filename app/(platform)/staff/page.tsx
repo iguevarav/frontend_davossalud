@@ -25,7 +25,7 @@ export default async function StaffPage() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Personal</h1>
           <p className="text-muted-foreground mt-1">
-            Gestiona los miembros del equipo y sus permisos.
+            Gestiona los miembros del equipo.
           </p>
         </div>
         <AddStaffButton />

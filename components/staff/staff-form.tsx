@@ -125,7 +125,6 @@ export function StaffForm({ onSuccess }: StaffFormProps) {
           )}
         />
 
-        {/* Documento */}
         <Controller
           name="document"
           control={form.control}
@@ -149,7 +148,6 @@ export function StaffForm({ onSuccess }: StaffFormProps) {
           )}
         />
 
-        {/* Teléfono y Especialidad en fila */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Controller
             name="phone"
@@ -191,7 +189,6 @@ export function StaffForm({ onSuccess }: StaffFormProps) {
           />
         </div>
 
-        {/* Dirección */}
         <Controller
           name="address"
           control={form.control}
@@ -209,7 +206,6 @@ export function StaffForm({ onSuccess }: StaffFormProps) {
           )}
         />
 
-        {/* Foto de Perfil */}
         <Controller
           name="profilePhoto"
           control={form.control}

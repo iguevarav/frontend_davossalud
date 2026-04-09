@@ -26,8 +26,7 @@ export function StaffTable({ data }: StaffTableProps) {
             <TableHead className="font-semibold">Nombre</TableHead>
             <TableHead className="font-semibold">Documento</TableHead>
             <TableHead className="font-semibold">Especialidad</TableHead>
-            <TableHead className="font-semibold">Email</TableHead>
-            <TableHead className="font-semibold">Estado</TableHead>
+            <TableHead className="font-semibold">Teléfono</TableHead>
             <TableHead className="text-right font-semibold">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -45,18 +44,7 @@ export function StaffTable({ data }: StaffTableProps) {
               </TableCell>
               <TableCell>{staff.document}</TableCell>
               <TableCell>{staff.specialty || "General"}</TableCell>
-              <TableCell>{staff.user.email}</TableCell>
-              <TableCell>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                    staff.user.isActive
-                      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      : "bg-slate-50 text-slate-700 border border-slate-200"
-                  }`}
-                >
-                  {staff.user.isActive ? "Activo" : "Inactivo"}
-                </span>
-              </TableCell>
+              <TableCell>{staff.phone}</TableCell>
               <TableCell className="text-right">
                 <StaffTableActions staff={staff} />
               </TableCell>
