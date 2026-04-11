@@ -16,7 +16,7 @@ export async function createUserAction(data: any) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   const newUser = await createUser(token, data);
-  revalidatePath("/users");
+  revalidatePath("/usuarios");
   return newUser;
 }
 
@@ -25,7 +25,7 @@ export async function updateUserAction(id: string, data: any) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   const updatedUser = await updateUser(token, id, data);
-  revalidatePath("/users");
+  revalidatePath("/usuarios");
   return updatedUser;
 }
 
@@ -34,7 +34,7 @@ export async function updateUserPasswordAction(id: string, data: any) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   await updateUserPassword(token, id, data);
-  revalidatePath("/users");
+  revalidatePath("/usuarios");
 }
 
 export async function updateUserEmailAction(id: string, data: any) {
@@ -42,7 +42,7 @@ export async function updateUserEmailAction(id: string, data: any) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   await updateUserEmail(token, id, data);
-  revalidatePath("/users");
+  revalidatePath("/usuarios");
 }
 
 export async function deleteUserAction(id: string) {
@@ -50,5 +50,5 @@ export async function deleteUserAction(id: string) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   await deleteUser(token, id);
-  revalidatePath("/users");
+  revalidatePath("/usuarios");
 }

@@ -97,11 +97,11 @@ const data = {
       items: [
         {
           title: "Personal",
-          url: "/staff",
+          url: "/personal",
         },
         {
           title: "Usuarios",
-          url: "/users",
+          url: "/usuarios",
         },
       ],
     },

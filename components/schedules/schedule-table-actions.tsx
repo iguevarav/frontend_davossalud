@@ -3,18 +3,10 @@
 import { useState } from "react";
 import {
   MoreHorizontal,
+  Loader2,
   UserRoundPenIcon,
   Trash2,
-  Eye,
-  User,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { Staff } from "@/types/staff";
-import { Role } from "@/types/user";
-import {
-  deleteStaffAction,
-  updateStaffAction,
-} from "@/lib/actions/staff.actions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -44,27 +36,27 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Schedule } from "@/types/schedule";
+import {
+  deleteScheduleAction,
+  updateScheduleAction,
+} from "@/lib/actions/schedule.actions";
 
-interface StaffRowActionsProps {
-  staff: Staff;
-}
-
-export function StaffTableActions({ staff }: StaffRowActionsProps) {
-  const router = useRouter();
-  const isDoctor = staff.user?.roles?.includes(Role.DOCTOR);
-
-  const [viewOpen, setViewOpen] = useState(false);
+export function ScheduleTableActions({ schedule }: { schedule: Schedule }) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleDelete() {
     setIsLoading(true);
     setError(null);
+
     try {
-      await deleteStaffAction(staff.id);
+      const result = await deleteScheduleAction(schedule.id, schedule.staffId);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       setDeleteOpen(false);
     } catch (err: any) {
       setError(err.message);
@@ -79,18 +71,25 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
     setError(null);
 
     const formData = new FormData(e.currentTarget);
-    const phone = formData.get("phone") as string;
-    const address = formData.get("address") as string;
-    const specialty = formData.get("specialty") as string;
+    const date = formData.get("date") as string;
+    const startTime = formData.get("startTime") as string;
+    const endTime = formData.get("endTime") as string;
 
     const dataToUpdate = {
-      phone,
-      address,
-      specialty,
+      date,
+      startTime,
+      endTime,
     };
 
     try {
-      await updateStaffAction(staff.id, dataToUpdate);
+      const result = await updateScheduleAction(
+        schedule.id,
+        dataToUpdate,
+        schedule.staffId,
+      );
+      if (!result.success) {
+        throw new Error(result.error);
+      }
       setEditOpen(false);
     } catch (err: any) {
       setError(err.message);
@@ -103,39 +102,25 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hover:bg-muted"
-          >
-            <MoreHorizontal className="h-4 w-4" />
+          <Button variant="ghost" className="h-8 w-8 p-0" disabled={isLoading}>
             <span className="sr-only">Abrir menú</span>
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MoreHorizontal className="h-4 w-4" />
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel>Opciones</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {isDoctor && (
-            <DropdownMenuItem
-              className="cursor-pointer"
-              onClick={() => router.push(`/personal/${staff.id}`)}
-            >
-              <User className="mr-2 h-4 w-4" /> Ir a Perfil
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuItem
-            className="cursor-pointer"
-            onClick={() => setViewOpen(true)}
-          >
-            <Eye className="mr-2 h-4 w-4" />
-            Ver
-          </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={() => setEditOpen(true)}
           >
-            <UserRoundPenIcon className="mr-2 h-4 w-4" /> Editar
+            <UserRoundPenIcon className="mr-2 h-4 w-4" />
+            Editar
           </DropdownMenuItem>
+
           <DropdownMenuItem
             className="text-destructive focus:bg-destructive/10 cursor-pointer"
             onClick={() => setDeleteOpen(true)}
@@ -145,98 +130,63 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="sm:max-w-md p-8">
-          <DialogHeader>
-            <DialogTitle>Detalles del Personal</DialogTitle>
-            <DialogDescription>
-              Información de {staff.user.firstName} {staff.user.lastName}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Nombre</Label>
-              <div className="col-span-3 text-sm pl-4">
-                {staff.user.firstName} {staff.user.lastName}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Documento</Label>
-              <div className="col-span-3 text-sm pl-4">{staff.document}</div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Especialidad</Label>
-              <div className="col-span-3 text-sm pl-4">
-                {staff.specialty || "General"}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Teléfono</Label>
-              <div className="col-span-3 text-sm pl-4">
-                {staff.phone || "No registrado"}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right">Dirección</Label>
-              <div className="col-span-3 text-sm pl-4">
-                {staff.address || "No registrado"}
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setViewOpen(false)}>
-              Cerrar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       <Dialog open={editOpen} onOpenChange={setEditOpen}>
         <DialogContent className="sm:max-w-md p-8">
           <DialogHeader>
-            <DialogTitle>Editar Perfil</DialogTitle>
+            <DialogTitle>Editar Turno</DialogTitle>
             <DialogDescription>
-              Actualice los datos del miembro del personal. Haga clic en guardar
-              cuando termine.
+              Modifique la fecha u horario del turno.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleEdit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="specialty" className="text-right">
-                  Especialidad
+                <Label htmlFor="date-edit" className="text-right font-medium">
+                  Fecha
                 </Label>
                 <Input
-                  id="specialty"
-                  name="specialty"
-                  defaultValue={staff.specialty || ""}
+                  id="date-edit"
+                  name="date"
+                  type="date"
+                  defaultValue={schedule.date}
+                  required
                   className="col-span-3 ml-2"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  Teléfono
+                <Label
+                  htmlFor="startTime-edit"
+                  className="text-right font-medium"
+                >
+                  Hora Inicio
                 </Label>
                 <Input
-                  id="phone"
-                  name="phone"
-                  defaultValue={staff.phone || ""}
+                  id="startTime-edit"
+                  name="startTime"
+                  type="time"
+                  defaultValue={schedule.startTime}
+                  required
                   className="col-span-3 ml-2"
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="address" className="text-right">
-                  Dirección
+                <Label
+                  htmlFor="endTime-edit"
+                  className="text-right font-medium"
+                >
+                  Hora Fin
                 </Label>
                 <Input
-                  id="address"
-                  name="address"
-                  defaultValue={staff.address || ""}
+                  id="endTime-edit"
+                  name="endTime"
+                  type="time"
+                  defaultValue={schedule.endTime}
+                  required
                   className="col-span-3 ml-2"
                 />
               </div>
               {error && (
-                <p className="text-sm text-red-500 text-center col-span-4">
+                <p className="text-sm text-red-500 text-center col-span-4 font-medium px-4">
                   {error}
                 </p>
               )}
@@ -246,6 +196,7 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
                 type="button"
                 variant="outline"
                 onClick={() => setEditOpen(false)}
+                disabled={isLoading}
               >
                 Cancelar
               </Button>
@@ -260,10 +211,10 @@ export function StaffTableActions({ staff }: StaffRowActionsProps) {
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Está absolutamente seguro?</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar este turno?</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Esto eliminará permanentemente
-              al personal "{staff.user.firstName}".
+              Esta acción eliminará el horario para este día y liberará la
+              disponibilidad. No se puede deshacer.
               {error && (
                 <p className="text-red-500 mt-2 font-medium">{error}</p>
               )}

@@ -16,7 +16,7 @@ export async function updateStaffAction(id: string, data: Partial<Staff>) {
   if (!token) throw new Error("UNAUTHORIZED");
   
   const updatedStaff = await updateStaff(id, data, token);
-  revalidatePath("/staff");
+  revalidatePath("/personal");
   return updatedStaff;
 }
 
@@ -25,7 +25,7 @@ export async function createStaffAction(data: any) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   const newStaff = await createStaff(data, token);
-  revalidatePath("/staff");
+  revalidatePath("/personal");
   return newStaff;
 }
 
@@ -34,5 +34,5 @@ export async function deleteStaffAction(id: string) {
   if (!token) throw new Error("UNAUTHORIZED");
 
   await deleteStaff(id, token);
-  revalidatePath("/staff");
+  revalidatePath("/personal");
 }
