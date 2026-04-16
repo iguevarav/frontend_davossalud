@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Schedule } from "@/types/schedule";
 import { ScheduleTableActions } from "./schedule-table-actions";
+import { formatDate } from "@/lib/utils";
 
 interface ScheduleTableProps {
   data: Schedule[];
@@ -21,13 +22,6 @@ export function ScheduleTable({ data }: ScheduleTableProps) {
     const dateB = new Date(`${b.date}T${b.startTime}:00`);
     return dateA.getTime() - dateB.getTime();
   });
-
-  const formatDate = (dateString: string) => {
-    const defaultDate = new Date(`${dateString}T00:00:00`);
-    return new Intl.DateTimeFormat("es-ES", { dateStyle: "long" }).format(
-      defaultDate,
-    );
-  };
 
   if (sortedData.length === 0) {
     return (

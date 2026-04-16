@@ -1,4 +1,5 @@
-import { getSession, logout } from "@/lib/actions/auth.actions";
+import { getSession } from "@/lib/actions/auth.actions";
+import { redirect } from "next/navigation";
 import { getStaffById } from "@/lib/services/staff";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Staff } from "@/types/staff";
 import { Role } from "@/types/user";
 import { ScheduleSection } from "@/components/schedules/schedule-section";
+import { InfoItem } from "@/components/ui/info-item";
 
 export default async function PersonalProfilePage({
   params,
@@ -27,7 +29,7 @@ export default async function PersonalProfilePage({
   } catch (error: unknown) {
     const err = error instanceof Error ? error : new Error(String(error));
     if (err.message === "UNAUTHORIZED") {
-      await logout();
+      redirect("/login");
     }
     return (
       <div className="flex flex-col items-center justify-center p-8 gap-4 min-h-[50vh]">
@@ -105,53 +107,10 @@ export default async function PersonalProfilePage({
       <div className="w-full max-w-7xl h-px bg-border/60 my-2 pl-12" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 max-w-7xl pl-12 my-2">
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-muted rounded-md flex justify-center items-center shadow-sm text-foreground/80">
-            <Mail className="h-3 w-3" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground ">Correo Electrónico</p>
-            <p className="text-sm text-foreground">{user.email}</p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-muted rounded-md flex justify-center items-center shadow-sm text-foreground/80">
-            <IdCard className="h-3 w-3" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground ">
-              Documento de Identidad
-            </p>
-            <p className="text-sm text-foreground">
-              {document || "No registrado"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-muted rounded-md flex justify-center items-center shadow-sm text-foreground/80">
-            <Phone className="h-3 w-3" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground ">Teléfono</p>
-            <p className="text-sm text-foreground">
-              {phone || "No registrado"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-start gap-4">
-          <div className="p-2 bg-muted rounded-md flex justify-center items-center shadow-sm text-foreground/80">
-            <MapPin className="h-3 w-3" />
-          </div>
-          <div>
-            <p className="text-xs text-muted-foreground ">Dirección</p>
-            <p className="text-sm text-foreground">
-              {address || "No registrado"}
-            </p>
-          </div>
-        </div>
+        <InfoItem icon={Mail} label="Correo Electrónico" value={user.email} />
+        <InfoItem icon={IdCard} label="Documento de Identidad" value={document || "No registrado"} />
+        <InfoItem icon={Phone} label="Teléfono" value={phone || "No registrado"} />
+        <InfoItem icon={MapPin} label="Dirección" value={address || "No registrado"} />
       </div>
 
       <ScheduleSection staffId={staff.id} />

@@ -1,7 +1,8 @@
 import { AddStaffButton } from "@/components/staff/add-staff-button"
 import { StaffTable } from "@/components/staff/staff-table"
 import { getStaffList } from "@/lib/services/staff"
-import { getSession, logout } from "@/lib/actions/auth.actions"
+import { getSession } from "@/lib/actions/auth.actions"
+import { redirect } from "next/navigation"
 import { Staff } from "@/types/staff"
 
 export default async function StaffPage() {
@@ -13,7 +14,7 @@ export default async function StaffPage() {
       staff = await getStaffList(token)
     } catch (error: any) {
       if (error.message === "UNAUTHORIZED") {
-        await logout()
+        redirect("/login")
       }
       throw error
     }

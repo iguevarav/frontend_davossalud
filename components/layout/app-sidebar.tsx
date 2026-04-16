@@ -1,12 +1,13 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   BadgeCheck,
   Bell,
   ChevronRight,
   ChevronsUpDown,
-  Command,
   CreditCard,
   LogOut,
   LayoutDashboard,
@@ -58,19 +59,18 @@ const data = {
       name: "Davos Salud",
       logo: Building2,
       plan: "Principal",
-    }
+    },
   ],
   navMain: [
     {
       title: "Plataforma",
       url: "#",
       icon: LayoutDashboard,
-      isActive: true,
       items: [
         {
           title: "Dashboard",
           url: "/dashboard",
-        }
+        },
       ],
     },
     {
@@ -80,20 +80,18 @@ const data = {
       items: [
         {
           title: "Pacientes",
-          url: "/patients",
+          url: "/pacientes",
         },
         {
           title: "Citas",
-          url: "/appointments",
+          url: "/citas",
         },
       ],
     },
-
     {
       title: "Administración",
       url: "#",
       icon: LayoutDashboard,
-      isActive: true,
       items: [
         {
           title: "Personal",
@@ -121,7 +119,10 @@ const data = {
 };
 
 export function AppSidebar() {
-  const [activeTeam, setActiveTeam] = React.useState(data.teams[0]);
+  const [activeTeam] = React.useState(data.teams[0]);
+  const pathname = usePathname();
+  const isGroupActive = (items: { url: string }[]) =>
+    items.some((item) => pathname.startsWith(item.url));
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -154,7 +155,7 @@ export function AppSidebar() {
               <Collapsible
                 key={item.title}
                 asChild
-                defaultOpen={item.isActive}
+                defaultOpen={isGroupActive(item.items)}
                 className="group/collapsible"
               >
                 <SidebarMenuItem>
@@ -169,10 +170,13 @@ export function AppSidebar() {
                     <SidebarMenuSub>
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton asChild>
-                            <a href={subItem.url}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={pathname.startsWith(subItem.url)}
+                          >
+                            <Link href={subItem.url}>
                               <span>{subItem.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}

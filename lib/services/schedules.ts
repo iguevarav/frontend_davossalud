@@ -2,8 +2,11 @@ import { Schedule } from "@/types/schedule"
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL
 
-export async function getSchedulesByStaffId(staffId: string, token: string): Promise<Schedule[]> {
-  const response = await fetch(`${BASE_URL}/schedules?staffId=${staffId}`, {
+export async function getSchedulesByStaffId(staffId: string, token: string, date?: string): Promise<Schedule[]> {
+  let url = `${BASE_URL}/schedules?staffId=${staffId}`
+  if (date) url += `&date=${date}`
+  
+  const response = await fetch(url, {
     headers: {
       "Authorization": `Bearer ${token}`,
       "Content-Type": "application/json",

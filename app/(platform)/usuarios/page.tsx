@@ -1,4 +1,5 @@
-import { getSession, logout } from "@/lib/actions/auth.actions"
+import { getSession } from "@/lib/actions/auth.actions"
+import { redirect } from "next/navigation"
 import { User } from "@/types/auth"
 import { getUsers } from "@/lib/services/user"
 import { AddUserButton } from "@/components/users/add-user-button"
@@ -13,7 +14,7 @@ export default async function UserPage() {
       user = await getUsers(token)
     } catch (error: any) {
       if (error.message === "UNAUTHORIZED") {
-        await logout()
+        redirect("/login")
       }
       throw error
     }
