@@ -25,7 +25,7 @@ export function PatientsTable({ data }: PatientsTableProps) {
             <TableHead className="font-semibold">Paciente</TableHead>
             <TableHead className="font-semibold">Documento</TableHead>
             <TableHead className="font-semibold">Teléfono</TableHead>
-            <TableHead className="font-semibold">Correo</TableHead>
+            <TableHead className="font-semibold">F. Nacimiento</TableHead>
             <TableHead className="text-right font-semibold">Acciones</TableHead>
           </TableRow>
         </TableHeader>
@@ -44,7 +44,7 @@ export function PatientsTable({ data }: PatientsTableProps) {
                 </TableCell>
                 <TableCell>{patient.document}</TableCell>
                 <TableCell>{patient.phone}</TableCell>
-                <TableCell>{patient.email || "No registrado"}</TableCell>
+                <TableCell>{patient.birthDate}</TableCell>
                 <TableCell className="text-right">
                   <PatientsTableActions patient={patient} />
                 </TableCell>

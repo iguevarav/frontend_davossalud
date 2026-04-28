@@ -5,12 +5,16 @@ import {
   RescheduleAppointmentDto,
 } from "@/types/appointment";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:3001";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function getAppointmentsList(
   token: string,
   params?: { date?: string; staffId?: string; status?: string }
 ): Promise<Appointment[]> {
+  if (!BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL no estA configurada");
+  }
+
   const urlParams = new URLSearchParams();
   if (params?.date) urlParams.append("date", params.date);
   if (params?.staffId) urlParams.append("staffId", params.staffId);
@@ -42,6 +46,10 @@ export async function createAppointment(
   data: CreateAppointmentDto,
   token: string
 ): Promise<Appointment> {
+  if (!BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL no estA configurada");
+  }
+
   const response = await fetch(`${BASE_URL}/appointments`, {
     method: "POST",
     headers: {
@@ -66,6 +74,10 @@ export async function updateAppointmentStatus(
   data: UpdateAppointmentStatusDto,
   token: string
 ): Promise<Appointment> {
+  if (!BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL no estA configurada");
+  }
+
   const response = await fetch(`${BASE_URL}/appointments/${id}/status`, {
     method: "PATCH",
     headers: {
@@ -92,6 +104,10 @@ export async function rescheduleAppointment(
   data: RescheduleAppointmentDto,
   token: string
 ): Promise<Appointment> {
+  if (!BASE_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL no estA configurada");
+  }
+
   const response = await fetch(`${BASE_URL}/appointments/${id}/reschedule`, {
     method: "PATCH",
     headers: {

@@ -129,7 +129,11 @@ export function AppointmentsTableActions({ appointment }: AppointmentsTableActio
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right text-muted-foreground font-medium">Especialista</Label>
-              <div className="col-span-3 text-sm pl-4">{appointment.staff.firstName} {appointment.staff.lastName}</div>
+              <div className="col-span-3 text-sm pl-4">
+                {appointment.staff?.user
+                  ? `${appointment.staff.user.firstName} ${appointment.staff.user.lastName}`
+                  : "Sin asignar"}
+              </div>
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right text-muted-foreground font-medium">Fecha</Label>

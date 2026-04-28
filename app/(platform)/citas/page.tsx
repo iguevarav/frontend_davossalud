@@ -4,6 +4,13 @@ import { getAppointmentsList } from "@/lib/services/appointment";
 import { AppointmentsTable } from "@/components/appointments/appointments-table";
 import { AddAppointmentButton } from "@/components/appointments/add-appointment-button";
 import { Appointment } from "@/types/appointment";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default async function AppointmentsPage(props: {
   searchParams: Promise<{ date?: string; staffId?: string; status?: string }>;
@@ -11,6 +18,7 @@ export default async function AppointmentsPage(props: {
   const searchParams = await props.searchParams;
   const token = await getSession();
   let appointments: Appointment[] = [];
+  let errorMessage: string | null = null;
 
   if (token) {
     try {
@@ -19,7 +27,7 @@ export default async function AppointmentsPage(props: {
       if (error.message === "UNAUTHORIZED") {
         redirect("/login");
       }
-      throw error;
+      errorMessage = error.message || "No se pudo cargar la lista de citas.";
     }
   } else {
     redirect("/login");
@@ -38,7 +46,22 @@ export default async function AppointmentsPage(props: {
       </div>
 
       <div className="w-full">
-        <AppointmentsTable data={appointments} />
+        {errorMessage ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>No se pudo cargar las citas</CardTitle>
+              <CardDescription>
+                El backend respondiO con un error y la pAgina evitO romper el render del
+                servidor.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              {errorMessage}
+            </CardContent>
+          </Card>
+        ) : (
+          <AppointmentsTable data={appointments} />
+        )}
       </div>
     </div>
   );

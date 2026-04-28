@@ -1,20 +1,26 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Bell,
+  Box,
   ChevronRight,
   ChevronsUpDown,
   CreditCard,
+  FileText,
   LogOut,
   LayoutDashboard,
+  Sparkles,
   Stethoscope,
   Settings,
   HelpCircle,
   Building2,
+  ClipboardList,
+  Wallet,
+  Users,
+  CalendarCheck,
 } from "lucide-react";
 
 import { logout } from "@/lib/actions/auth.actions";
@@ -48,11 +54,35 @@ import {
   SidebarGroupLabel,
 } from "@/components/ui/sidebar";
 
+function DriveIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true">
+      <path d="M8.1 3h7.1l3.2 5.5h-7.1L8.1 3Z" fill="#0F9D58" />
+      <path d="m5.3 8.5 3.5-5.5 3.5 5.5-3.5 6H1.8l3.5-6Z" fill="#F4B400" />
+      <path d="M12.3 14.5h7l-3.5 6h-7l3.5-6Z" fill="#4285F4" />
+    </svg>
+  );
+}
+
+type NavItem = {
+  title: string;
+  url: string;
+  external?: boolean;
+  icon?: React.ComponentType | (() => React.JSX.Element);
+};
+
+type NavGroup = {
+  title: string;
+  url: string;
+  icon: React.ComponentType;
+  items: NavItem[];
+};
+
 const data = {
   user: {
     name: "Dr. Admin",
     email: "admin@davossalud.com",
-    avatar: "/avatars/admin.jpg",
+    avatar: null,
   },
   teams: [
     {
@@ -67,43 +97,39 @@ const data = {
       url: "#",
       icon: LayoutDashboard,
       items: [
-        {
-          title: "Dashboard",
-          url: "/dashboard",
-        },
+        { title: "Dashboard", url: "/dashboard" },
       ],
     },
     {
-      title: "Gestión",
+      title: "Clínica",
       url: "#",
       icon: Stethoscope,
       items: [
+        { title: "Pacientes", url: "/pacientes" },
+        { title: "Citas", url: "/citas" },
+        { title: "Historia Clínica", url: "/historia-clinica", icon: ClipboardList },
+        { title: "Recetas", url: "/recetas", icon: FileText },
+        { title: "Tratamientos", url: "/tratamientos", icon: Sparkles },
         {
-          title: "Pacientes",
-          url: "/pacientes",
-        },
-        {
-          title: "Citas",
-          url: "/citas",
+          title: "Drive",
+          url: "https://drive.google.com/drive/folders/1kyn4YZLEopOBPEXnCJoCIwXueXglUJsh",
+          external: true,
+          icon: DriveIcon,
         },
       ],
     },
     {
       title: "Administración",
       url: "#",
-      icon: LayoutDashboard,
+      icon: Wallet,
       items: [
-        {
-          title: "Personal",
-          url: "/personal",
-        },
-        {
-          title: "Usuarios",
-          url: "/usuarios",
-        },
+        { title: "Caja", url: "/caja", icon: Wallet },
+        { title: "Productos", url: "/productos", icon: Box },
+        { title: "Personal", url: "/personal", icon: Users },
+        { title: "Usuarios", url: "/usuarios" },
       ],
     },
-  ],
+  ] satisfies NavGroup[],
   navSecondary: [
     {
       title: "Configuración",
@@ -121,8 +147,9 @@ const data = {
 export function AppSidebar() {
   const [activeTeam] = React.useState(data.teams[0]);
   const pathname = usePathname();
-  const isGroupActive = (items: { url: string }[]) =>
-    items.some((item) => pathname.startsWith(item.url));
+  const router = useRouter();
+  const isGroupActive = (items: NavItem[]) =>
+    items.some((item) => !item.external && pathname.startsWith(item.url));
 
   return (
     <Sidebar variant="inset" collapsible="icon">
@@ -171,12 +198,20 @@ export function AppSidebar() {
                       {item.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton
-                            asChild
-                            isActive={pathname.startsWith(subItem.url)}
+                            isActive={!subItem.external && pathname.startsWith(subItem.url)}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              if (subItem.external) {
+                                window.open(subItem.url, "_blank", "noopener,noreferrer");
+                                return;
+                              }
+
+                              router.push(subItem.url);
+                            }}
                           >
-                            <Link href={subItem.url}>
-                              <span>{subItem.title}</span>
-                            </Link>
+                            {subItem.icon ? <subItem.icon /> : null}
+                            <span>{subItem.title}</span>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}
@@ -199,7 +234,9 @@ export function AppSidebar() {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="size-8 rounded-lg">
-                    <AvatarImage src={data.user.avatar} alt={data.user.name} />
+                    {data.user.avatar ? (
+                      <AvatarImage src={data.user.avatar} alt={data.user.name} />
+                    ) : null}
                     <AvatarFallback className="rounded-lg">DS</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">

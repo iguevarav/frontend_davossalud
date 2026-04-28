@@ -138,12 +138,26 @@ export function PatientsTableActions({ patient }: PatientsTableActionsProps) {
             </div>
              <div className="grid grid-cols-4 items-center gap-4">
               <Label className="text-right text-muted-foreground font-medium">Dirección</Label>
-              <div className="col-span-3 text-sm pl-4">{patient.address}</div>
+              <div className="col-span-3 text-sm pl-4">{patient.address || "—"}</div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label className="text-right text-muted-foreground font-medium">Correo</Label>
-              <div className="col-span-3 text-sm pl-4 truncate">{patient.email || "No registrado"}</div>
-            </div>
+            {patient.additionalNote && (
+              <div className="grid grid-cols-4 items-start gap-4">
+                <Label className="text-right text-muted-foreground font-medium pt-0.5">Nota</Label>
+                <div className="col-span-3 text-sm pl-4 whitespace-pre-wrap">{patient.additionalNote}</div>
+              </div>
+            )}
+            {patient.allergies && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right font-semibold text-red-600 dark:text-red-400">Alergias</Label>
+                <div className="col-span-3 text-sm pl-4 text-red-600 dark:text-red-400 font-medium">{patient.allergies}</div>
+              </div>
+            )}
+            {patient.chronicDiseases && (
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right font-semibold text-red-600 dark:text-red-400">Cond. Crónicas</Label>
+                <div className="col-span-3 text-sm pl-4 text-red-600 dark:text-red-400 font-medium">{patient.chronicDiseases}</div>
+              </div>
+            )}
           </div>
           <div className="flex justify-end">
             <Button variant="outline" onClick={() => setViewOpen(false)}>

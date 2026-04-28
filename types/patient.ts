@@ -23,8 +23,8 @@ export interface Patient {
   birthDate: string; // "YYYY-MM-DD"
   gender: Gender;
   phone: string;
-  email?: string;
   address?: string;
+  additionalNote?: string;
   bloodType?: BloodType;
   allergies?: string;
   chronicDiseases?: string;
@@ -39,11 +39,12 @@ export interface CreatePatientDto {
   birthDate: string;
   gender: Gender;
   phone: string;
-  email?: string;
   address?: string;
+  additionalNote?: string;
   bloodType?: BloodType;
   allergies?: string;
   chronicDiseases?: string;
 }
 
 export interface UpdatePatientDto extends Partial<CreatePatientDto> {}
+
